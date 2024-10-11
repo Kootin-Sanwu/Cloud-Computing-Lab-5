@@ -54,28 +54,27 @@ print("Current working directory:", os.getcwd())
 # Function to increment the visit count
 def increment_count():
     try:
-        # Connect to the MySQL database
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-
+        
         # Check if there's already a count in the database
         cursor.execute("SELECT count FROM visits WHERE id = 1")
         result = cursor.fetchone()
+        print("Current count from database:", result)  # Debugging line
 
         if result:
-            # Increment the count
             new_count = result[0] + 1
             cursor.execute("UPDATE visits SET count = %s WHERE id = 1", (new_count,))
+            print("Incremented count to:", new_count)  # Debugging line
         else:
-            # Initialize the count if it doesn't exist
             cursor.execute("INSERT INTO visits (count) VALUES (1)")
+            print("Initialized count to 1.")  # Debugging line
 
-        # Commit changes
         conn.commit()
 
-        # Return the current count
         cursor.execute("SELECT count FROM visits WHERE id = 1")
         current_count = cursor.fetchone()[0]
+        print("Retrieved current count:", current_count)  # Debugging line
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
