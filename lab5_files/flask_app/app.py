@@ -1,5 +1,6 @@
 from flask import Flask
 import mysql.connector
+import os
 
 app = Flask(__name__)
 
@@ -11,21 +12,44 @@ db_config = {
     'database': 'visits'    # Your MySQL database name
 }
 
-# Function to execute SQL from a file
-def execute_sql_file(filename):
-    with open(filename, 'r') as file:
-        sql_script = file.read()
-
+# Function to create the visits database if it doesn't exist
+def create_database():
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = mysql.connector.connect(user='root', password='', host='localhost')
         cursor = conn.cursor()
-        cursor.execute(sql_script, multi=True)
-        conn.commit()
+        cursor.execute("CREATE DATABASE IF NOT EXISTS visits")
     except mysql.connector.Error as err:
         print(f"Error: {err}")
     finally:
-        cursor.close()
+        if cursor:
+            cursor.close()
         conn.close()
+
+# Function to execute SQL from a file
+def execute_sql_file(filename):
+    cursor = None
+    try:
+        with open(filename, 'r') as file:
+            sql_script = file.read()
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Execute each statement in the SQL script
+        for statement in sql_script.split(';'):
+            if statement.strip():  # Avoid executing empty statements
+                cursor.execute(statement)
+        
+        conn.commit()  # Commit all changes after execution
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+# Print the current working directory
+print("Current working directory:", os.getcwd())
 
 # Function to increment the visit count
 def increment_count():
@@ -58,7 +82,8 @@ def increment_count():
         current_count = 0  # Default value in case of error
 
     finally:
-        cursor.close()
+        if cursor:
+            cursor.close()
         conn.close()
 
     return current_count
@@ -69,6 +94,10 @@ def home():
     return f"This page has been visited {count} times."
 
 if __name__ == "__main__":
+    # Create the database if it doesn't exist
+    create_database()
+    
     # Execute the SQL file to create the table
-    execute_sql_file('visits.sql')
+    execute_sql_file(r'C:\xampp\htdocs\Cloud-Computing-Lab-5\lab5_files\flask_app\visits.sql')
+    
     app.run(host="0.0.0.0")
