@@ -15,7 +15,7 @@ db_config = {
 # Function to create the visits database if it doesn't exist
 def create_database():
     try:
-        conn = mysql.connector.connect(user='root', password='', host='localhost')
+        conn = mysql.connector.connect(user='root', password='', host='13.60.47.185')
         cursor = conn.cursor()
         cursor.execute("CREATE DATABASE IF NOT EXISTS visits")
     except mysql.connector.Error as err:
@@ -32,7 +32,7 @@ def execute_sql_file(filename):
         with open(filename, 'r') as file:
             sql_script = file.read()
 
-        conn = mysql.connector.connect(user='root', password='', host='localhost')
+        conn = mysql.connector.connect(user='root', password='', host='13.60.47.185')
         cursor = conn.cursor()
 
         # Execute each statement in the SQL script
