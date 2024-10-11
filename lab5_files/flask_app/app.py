@@ -8,7 +8,7 @@ app = Flask(__name__)
 db_config = {
     'user': 'root',         # Your MySQL username
     'password': '',         # Your MySQL password
-    'host': 'localhost',    # MySQL service name in Docker
+    'host': '13.60.47.185',    # MySQL service name in Docker
     'database': 'visits'    # Your MySQL database name
 }
 
