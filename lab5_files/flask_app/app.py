@@ -125,6 +125,7 @@ db_config = {
 
 # Function to create the visits database if it doesn't exist
 def create_database():
+    cursor = None  # Initialize cursor to None
     try:
         conn = mysql.connector.connect(user='root', password='', host='13.60.47.185')
         cursor = conn.cursor()
@@ -132,7 +133,7 @@ def create_database():
     except mysql.connector.Error as err:
         print(f"Error: {err}")
     finally:
-        if cursor:
+        if cursor:  # Check if cursor is not None
             cursor.close()
         conn.close()
 
