@@ -32,17 +32,20 @@ def execute_sql_file(filename):
         with open(filename, 'r') as file:
             sql_script = file.read()
 
-        conn = mysql.connector.connect(**db_config)
+        conn = mysql.connector.connect(user='root', password='', host='localhost')
         cursor = conn.cursor()
 
         # Execute each statement in the SQL script
         for statement in sql_script.split(';'):
             if statement.strip():  # Avoid executing empty statements
                 cursor.execute(statement)
+                print(f"Executed: {statement.strip()}")  # Debugging line
         
         conn.commit()  # Commit all changes after execution
+        print("SQL file executed successfully.")
+
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        print(f"Error executing SQL file: {err}")
     finally:
         if cursor:
             cursor.close()
@@ -54,27 +57,27 @@ print("Current working directory:", os.getcwd())
 # Function to increment the visit count
 def increment_count():
     try:
+        # Connect to the MySQL database
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        
+
         # Check if there's already a count in the database
         cursor.execute("SELECT count FROM visits WHERE id = 1")
         result = cursor.fetchone()
-        print("Current count from database:", result)  # Debugging line
+        print("Current count from database:", result)  # Debugging output
 
         if result:
             new_count = result[0] + 1
             cursor.execute("UPDATE visits SET count = %s WHERE id = 1", (new_count,))
-            print("Incremented count to:", new_count)  # Debugging line
+            print("Updated count to:", new_count)  # Debugging output
         else:
             cursor.execute("INSERT INTO visits (count) VALUES (1)")
-            print("Initialized count to 1.")  # Debugging line
+            print("Initialized count to 1.")  # Debugging output
 
-        conn.commit()
-
+        conn.commit()  # Commit the changes
         cursor.execute("SELECT count FROM visits WHERE id = 1")
         current_count = cursor.fetchone()[0]
-        print("Retrieved current count:", current_count)  # Debugging line
+        print("Retrieved current count:", current_count)  # Debugging output
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
