@@ -99,6 +99,8 @@ if __name__ == "__main__":
     # Create the database if it doesn't exist
     create_database()
     
+    home()
+    
     # Execute the SQL file to create the table
     execute_sql_file(r'C:\xampp\htdocs\Cloud-Computing-Lab-5\lab5_files\flask_app\visits.sql')
     
