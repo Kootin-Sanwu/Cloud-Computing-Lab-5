@@ -1,20 +1,3 @@
-# from flask import Flask
-# import redis
-
-# app = Flask(__name__)
-
-# r = redis.Redis(host="redis", port=6379)
-
-
-# @app.route("/")
-# def home():
-#     count = r.incr("hits")
-#     return f"This page has been visited {count} times."
-
-
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0")
-
 from flask import Flask
 import mysql.connector
 
@@ -23,10 +6,26 @@ app = Flask(__name__)
 # MySQL connection configuration
 db_config = {
     'user': 'root',         # Your MySQL username
-    'password': '', # Your MySQL password
-    'host': 'localhost',          # MySQL service name in Docker
-    'database': 'visits'  # Your MySQL database name
+    'password': '',         # Your MySQL password
+    'host': 'localhost',    # MySQL service name in Docker
+    'database': 'visits'    # Your MySQL database name
 }
+
+# Function to execute SQL from a file
+def execute_sql_file(filename):
+    with open(filename, 'r') as file:
+        sql_script = file.read()
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute(sql_script, multi=True)
+        conn.commit()
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        cursor.close()
+        conn.close()
 
 # Function to increment the visit count
 def increment_count():
@@ -34,14 +33,6 @@ def increment_count():
         # Connect to the MySQL database
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-
-        # Create the visits table if it doesn't exist
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS visits (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                count INT NOT NULL
-            )
-        """)
 
         # Check if there's already a count in the database
         cursor.execute("SELECT count FROM visits WHERE id = 1")
@@ -72,12 +63,12 @@ def increment_count():
 
     return current_count
 
-
 @app.route("/")
 def home():
     count = increment_count()
     return f"This page has been visited {count} times."
 
-
 if __name__ == "__main__":
+    # Execute the SQL file to create the table
+    execute_sql_file('visits.sql')
     app.run(host="0.0.0.0")
